@@ -177,5 +177,56 @@ class CardDeck {
 // Create a new card deck.
 const deck = new CardDeck(".deck", ".hand");
 
+//We get the parameters from the url
+const params = new URLSearchParams(window.location.search);
+let cards;
+
+//First we see if the user wants the carts sorted
+if(params.has('sorted')){
+	let orderType = params.get('sorted')
+
+	//If the parameter sort is present then we assume the order is ascending
+	deck.sort();
+
+	//If the user specifies that he wants it in descended order we reverse the array
+	//This could also be done by adding a new method to a class sortDesc or adding a parameter to sort but I preferred to not alter the class
+	if(orderType == "desc"){
+		deck.possibleCards.reverse();
+	}
+}
+
+//At first we check if the suits parameters is present to filter the cards to have only the suits asked
+if(params.has('suits')){
+	cards = params.get('suits').split(' ');
+	
+	deck.filter('suit', [...cards]);
+	
+}
+
+//Second filter is rank, it only applies the ranks to the suits of cards already prefiltered (If the user didn´t used the suits filter then 
+//the four suits would be used)
+if(params.has('ranks')){
+	cards = params.get('ranks').split(' ').map((v) =>{return parseInt(v)});
+	
+	deck.filter('rank', [...cards]);
+	
+}
+
+//Lastly we would filter by specific cards. If the user is specifying a card that is not present after filtering by suit and rank then it would
+//ignore it
+if(params.has('cards')){
+	cards = params.get('cards').split(' ');
+	
+	deck.filter('id', [...cards]);
+}
+//Apply limit if present
+if(params.has('limit')){
+	const limit = parseInt(params.get('limit'))
+	deck.limit(limit)
+}
+
+
+
+deck.drawFiltered();
 // Take a look at the deck object and its methods.
 console.log(deck);
